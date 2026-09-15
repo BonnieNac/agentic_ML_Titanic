@@ -7,6 +7,9 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 
+# Réglages Claude Code personnels (perso, non partagés)
+.claude/settings.local.json
+
 # Données et artefacts générés
 data/*.csv
 models/*.joblib
