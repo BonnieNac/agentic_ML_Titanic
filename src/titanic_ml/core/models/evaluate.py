@@ -28,9 +28,7 @@ def evaluate_model(model: Pipeline, X_test: pd.DataFrame, y_test: pd.Series) -> 
 
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
     fig, ax = plt.subplots(figsize=(5, 5))
-    ConfusionMatrixDisplay.from_predictions(
-        y_test, y_pred, display_labels=["Décédé", "Survivant"], ax=ax, cmap="Blues"
-    )
+    ConfusionMatrixDisplay.from_predictions(y_test, y_pred, display_labels=["Décédé", "Survivant"], ax=ax, cmap="Blues")
     fig.tight_layout()
     fig.savefig(FIGURES_DIR / "confusion_matrix.png")
     print(f"Matrice de confusion sauvegardée dans {FIGURES_DIR / 'confusion_matrix.png'}")

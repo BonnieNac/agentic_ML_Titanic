@@ -33,10 +33,7 @@ def train_model(
     model = build_model()
 
     cv_scores = cross_val_score(model, X_train, y_train, cv=5, scoring="accuracy")
-    print(
-        f"Accuracy en validation croisée (5 folds) : {cv_scores.mean():.3f} "
-        f"(+/- {cv_scores.std():.3f})"
-    )
+    print(f"Accuracy en validation croisée (5 folds) : {cv_scores.mean():.3f} (+/- {cv_scores.std():.3f})")
 
     model.fit(X_train, y_train)
     return model, X_test, y_test
