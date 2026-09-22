@@ -3017,6 +3017,7 @@ name = "titanic-ml"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "altair" },
     { name = "fastapi" },
     { name = "ipykernel" },
     { name = "joblib" },
@@ -3051,6 +3052,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "altair", specifier = ">=6.3.0" },
     { name = "fastapi" },
     { name = "ipykernel" },
     { name = "joblib" },

@@ -5,10 +5,12 @@ from pathlib import Path
 import pandas as pd
 import pretty_errors  # noqa: F401
 import streamlit as st
+import viz
 from loguru import logger
 from pygwalker.api.streamlit import StreamlitRenderer
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
+from titanic_ml.core.data_io.loader import load_data as load_titanic_dataset
 from titanic_ml.core.utils import get_project_version
 
 
@@ -87,6 +89,12 @@ def sanitize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # --- OPTIMISATION PAR CACHE ---
+@st.cache_data(show_spinner="Chargement du dataset Titanic...")
+def get_titanic_dataframe() -> pd.DataFrame:
+    """Charge (et met en cache) le dataset Titanic d'entraînement pour les visualisations."""
+    return load_titanic_dataset()
+
+
 @st.cache_data(show_spinner="Chargement des données...")
 def get_cached_dataframe(file_bytes: bytes, file_name: str) -> pd.DataFrame | None:
     """Utilise le cache Streamlit pour éviter de recharger le fichier à chaque interaction."""
@@ -131,6 +139,64 @@ def load_data(dataset_file: UploadedFile | None) -> bool:
     return True
 
 
+# --- VISUALISATIONS TITANIC ---
+def display_titanic_visualizations() -> None:
+    """Affiche un tableau de bord de visualisations claires sur le dataset Titanic d'entraînement."""
+    df = get_titanic_dataframe()
+    display_df = viz.prepare_display_frame(df)
+
+    st.subheader("Vue d'ensemble")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Passagers", f"{len(df):,}".replace(",", " "))
+    with col2:
+        st.metric("Taux de survie global", f"{df['Survived'].mean() * 100:.1f} %")
+    with col3:
+        st.metric("Âge moyen", f"{df['Age'].mean():.1f} ans")
+
+    st.markdown("---")
+    st.subheader("Qui a survécu ?")
+    col_class, col_sex = st.columns(2)
+    with col_class:
+        st.altair_chart(
+            viz.survival_rate_by(
+                display_df,
+                "Classe",
+                order=viz.PCLASS_ORDER,
+                title="Taux de survie par classe",
+            ),
+            use_container_width=True,
+        )
+    with col_sex:
+        st.altair_chart(
+            viz.survival_rate_by(
+                display_df,
+                "Sexe",
+                order=viz.SEX_ORDER,
+                title="Taux de survie par sexe",
+            ),
+            use_container_width=True,
+        )
+
+    st.altair_chart(viz.survival_heatmap(df), use_container_width=True)
+
+    st.markdown("---")
+    st.subheader("Âge et port d'embarquement")
+    st.altair_chart(viz.age_distribution_by_survival(df), use_container_width=True)
+    st.altair_chart(
+        viz.survival_rate_by(
+            display_df,
+            "Embarquement",
+            order=viz.EMBARKED_ORDER,
+            title="Taux de survie par port d'embarquement",
+        ),
+        use_container_width=True,
+    )
+
+    with st.expander("📄 Voir les données utilisées (vue table)"):
+        st.dataframe(display_df, use_container_width=True)
+
+
 # --- EXÉCUTION PRINCIPALE ---
 def main() -> None:
     """Exécute le flux principal de l'application."""
@@ -141,7 +207,9 @@ def main() -> None:
     load_data(dataset_file)
     display_hero()
 
-    tab_summary, tab_explore = st.tabs(["📋 Aperçu du dataset", "🔍 Analyse visuelle"])
+    tab_summary, tab_viz, tab_explore = st.tabs(
+        ["📋 Aperçu du dataset", "📊 Visualisations Titanic", "🔍 Analyse visuelle"]
+    )
 
     with tab_summary:
         if "pyg_data" in st.session_state:
@@ -165,6 +233,9 @@ def main() -> None:
             st.dataframe(st.session_state.pyg_data.head(rows_to_show), use_container_width=True)
         else:
             st.info("💡 Charge un dataset depuis le menu de gauche.")
+
+    with tab_viz:
+        display_titanic_visualizations()
 
     with tab_explore:
         if "pyg_data" in st.session_state:
