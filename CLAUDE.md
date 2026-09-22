@@ -2,6 +2,25 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Claude Code environment in this repo
+
+This project's `.claude/settings.json` enforces some hard constraints (see
+[.claude/README.md](.claude/README.md) for the full explanation, written for
+newcomers to Claude Code):
+
+- `git push` and `pip install`/`pip3 install` are **denied** outright — dependencies
+  go through `uv add`/`uv sync`, and pushing is left to the user.
+- `.env`/`.env.*` files and `*.pem` are **denied** for both read and write.
+- `git rebase`/`git reset` always prompt for confirmation regardless of mode.
+- A `PostToolUse` hook (`.claude/hooks/ruff-format.js`) runs `ruff check --fix` +
+  `ruff format` on every file Claude writes or edits — don't hand-format Python,
+  it happens automatically after each edit.
+- `.claude/agents/code-quality-reviewer.md` is a subagent tuned to this pipeline's
+  failure modes (data leakage, missing `random_state`, sklearn pitfalls); the
+  built-in `/code-review` is more thorough for general review.
+- `.claude/skills/pr-description/` provides a `/pr-description` skill that enforces
+  a What/Why/Changes PR format from `git diff`.
+
 ## Commands
 
 Dependency/environment management is via [uv](https://docs.astral.sh/uv/) — never use `pip` directly.
