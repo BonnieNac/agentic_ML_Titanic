@@ -20,7 +20,7 @@ dependencies = [
     "loguru",
     "pretty-errors",
     "python-dotenv",
-    "streamlit",
+    "streamlit<1.57",
     "fastapi",
     "uvicorn",
     "pygwalker",
