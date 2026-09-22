@@ -1,3 +1,5 @@
+"""Fixtures pytest partagées par les tests unitaires."""
+
 import numpy as np
 import pandas as pd
 import pytest

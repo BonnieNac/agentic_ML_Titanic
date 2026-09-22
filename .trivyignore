@@ -1,0 +1,5 @@
+# .trivyignore
+#
+# Fichier vide par défaut : aucune CVE n'a encore été auditée pour ce projet.
+# Lance `trivy fs .` (ou `make` si une cible est ajoutée) et ajoute ici, avec
+# justification, les CVE confirmées comme non exploitables dans ce contexte.

@@ -1,33 +1,130 @@
 [project]
-name = "titanic-ml"
+name = "titanic_ml"
 version = "0.1.0"
-description = "Apprentissage supervisé sur le dataset Titanic"
-requires-python = ">=3.11"
-dependencies = [
-    "joblib>=1.6.0",
-    "matplotlib>=3.11.2",
-    "numpy>=2.4.6",
-    "pandas>=3.0.5",
-    "scikit-learn>=1.9.1",
-    "seaborn>=0.13.2",
+description = "Apprentissage supervisé sur le dataset Titanic, avec API FastAPI et dashboard Streamlit"
+readme = "README.md"
+authors = [
+    { name = "Bonnie", email = "bonnienaccache@gmail.com" },
 ]
+maintainers = [
+    { name = "Bonnie", email = "bonnienaccache@gmail.com" },
+]
+keywords = ["python", "data-science", "titanic", "machine-learning"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.12"
 
-[tool.uv]
-package = false
-
-[tool.ruff]
-line-length = 100
-target-version = "py311"
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
-
-[tool.pytest.ini_options]
-pythonpath = ["."]
-testpaths = ["tests"]
+dependencies = [
+    "loguru",
+    "pretty-errors",
+    "python-dotenv",
+    "streamlit",
+    "fastapi",
+    "uvicorn",
+    "pygwalker",
+    "openpyxl",
+    "pydantic",
+    "pydantic-settings",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "seaborn",
+    "scikit-learn",
+    "joblib",
+    "ipykernel",
+]
 
 [dependency-groups]
 dev = [
-    "pytest>=9.1.1",
-    "ruff>=0.16.7",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "ruff",
+    "mypy",
+    "pre-commit",
+    "commitizen",
+    "pip-licenses",
+    "httpx2>=2.13.0",
 ]
+
+[project.scripts]
+titanic_ml-app = "app.streamlit_app:main"
+titanic_ml-api = "titanic_ml.api.main:main"
+
+[build-system]
+requires = ["setuptools>=68.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+packages = { find = { where = ["src"] } }
+
+[tool.ruff]
+line-length = 120
+lint.select = [
+    "F",   # pyflakes rules
+    "E",   # pycodestyle error rules
+    "W",   # pycodestyle warning rules
+    "B",   # flake8-bugbear rules
+    "I",   # isort rules
+    "UP",  # pyupgrade rules
+    "SIM", # flake8-simplify rules
+    "ERA", # eradicate rules
+    "C",   # pylint convention rules
+    "D",   # pydocstyle rules
+    "ANN", # flake8-annotations rules
+]
+lint.ignore = [
+    "D107",   # Missing docstring in `__init__`
+    "D203",   # incorrect-blank-line-before-class
+    "D213",   # multi-line-summary-second-line
+    "C901",   # too complex
+    "ERA001", # commented out code
+]
+
+[tool.ruff.format]
+indent-style = "space"
+docstring-code-format = true
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+# Ajoute le plugin Pydantic pour éviter les faux positifs sur les modèles FastAPI
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["ci_exclude: Tests exclus du pipeline CI/CD"]
+addopts = [
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=xml:coverage.xml",
+    "--cov-fail-under=80",
+    "--junitxml=report.xml",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+]
+omit = ["**/__init__.py"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"
+version_files = ["VERSION", "pyproject.toml:^version ="]
+bump_message = "chore(release): bump version $current_version → $new_version"
+update_changelog_on_bump = true
+changelog_incremental = true
+pre_bump_hooks = ["uv sync", "git add uv.lock"]
+changelog_file = "CHANGELOG.md"

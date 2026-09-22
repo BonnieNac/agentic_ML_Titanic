@@ -1,0 +1,17 @@
+loguru
+pretty-errors
+python-dotenv
+streamlit
+fastapi
+uvicorn
+pygwalker
+openpyxl
+pydantic
+pydantic-settings
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+joblib
+ipykernel

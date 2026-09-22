@@ -1,85 +1,128 @@
 # Titanic ML
 
-Projet d'apprentissage supervisé : prédire la survie des passagers du Titanic.
+Apprentissage supervisé sur le dataset Titanic, avec API FastAPI et dashboard Streamlit.
 
-## Structure
+## 🚀 Fonctionnalités principales
 
+- **Pipeline ML** : chargement, préprocessing, entraînement (`RandomForestClassifier`) et
+  évaluation, orchestrés par [scripts/train_pipeline.py](scripts/train_pipeline.py).
+- **API FastAPI** : squelette de routes (`/health`, `/version`, `/hello`, `/bonjour`) prêt à
+  être enrichi d'un endpoint de prédiction.
+- **Dashboard Streamlit** : exploration interactive de datasets via Pygwalker.
+- **uv** : gestion des dépendances et de l'environnement Python.
+- **Docker** : Dockerfile multi-stage + `docker-compose.yml` pour l'API et Streamlit.
+- **CI/CD** : pipelines GitHub Actions et GitLab CI préconfigurés.
+- **Qualité** : Ruff (lint + format), MyPy (strict), Pytest (couverture ≥ 80 %).
+
+## 🏗️ Architecture
+
+Voir [ARCHITECTURE.md](ARCHITECTURE.md) pour le détail des composants et du flux de données.
+
+## 🛠️ Démarrage
+
+### Prérequis
+- [uv](https://github.com/astral-sh/uv)
+- [Docker](https://www.docker.com/) & Docker Compose (optionnel, pour la conteneurisation)
+
+### Installation
+
+```bash
+make dev-install
 ```
-titanic_ml/
-├── data/               # dataset (téléchargé automatiquement, ignoré par git)
-├── models/             # modèle entraîné + matrice de confusion (ignoré par git)
-├── src/
-│   ├── data.py         # chargement du dataset
-│   ├── preprocess.py   # sélection des features + pipeline de préprocessing
-│   ├── train.py        # entraînement (RandomForest) + validation croisée
-│   └── evaluate.py      # métriques + matrice de confusion
-├── tests/              # tests unitaires pytest
-├── main.py             # script principal
-└── pyproject.toml      # dépendances (uv) + config ruff/pytest
-```
 
-## Installation
-
-Le projet utilise [uv](https://docs.astral.sh/uv/) pour la gestion des dépendances
-et de l'environnement Python (uv télécharge lui-même une version de Python adaptée
-si besoin, pas besoin d'en installer une manuellement).
+Ou directement :
 
 ```bash
 uv sync
+uv run pre-commit install
 ```
 
-## Lancer l'entraînement
+### Configuration
 
 ```bash
-uv run python main.py
+cp .env.example .env
 ```
 
-Le script télécharge le dataset (si absent), entraîne un `RandomForestClassifier`
-sur les colonnes `Age`, `Fare`, `SibSp`, `Parch`, `Pclass`, `Sex`, `Embarked`,
-affiche les métriques (accuracy, ROC AUC, rapport de classification), sauvegarde
-la matrice de confusion dans `models/confusion_matrix.png` et le modèle dans
-`models/titanic_model.joblib`.
+## 📖 Utilisation
 
-## Réutiliser le modèle entraîné
-
-```python
-import joblib
-import pandas as pd
-
-model = joblib.load("models/titanic_model.joblib")
-
-passager = pd.DataFrame(
-    [
-        {
-            "Age": 29,
-            "Fare": 50,
-            "SibSp": 0,
-            "Parch": 0,
-            "Pclass": 1,
-            "Sex": "female",
-            "Embarked": "S",
-        }
-    ]
-)
-
-print(model.predict(passager))  # 0 = décédé, 1 = survivant
-print(model.predict_proba(passager))
-```
-
-## Qualité de code
-
-Formatage et lint avec [ruff](https://docs.astral.sh/ruff/) :
+### Entraîner le modèle
 
 ```bash
-uv run ruff format .
-uv run ruff check .
+make train
+# équivalent à : uv run python scripts/train_pipeline.py
 ```
 
-## Tests
+Télécharge le dataset dans `data/raw/titanic.csv`, entraîne le modèle et sauvegarde :
+- le modèle dans `models/titanic_model.joblib`
+- la matrice de confusion dans `docs/figures/confusion_matrix.png`
 
-Tests unitaires avec [pytest](https://docs.pytest.org/) (aucun appel réseau,
-tout est basé sur des données synthétiques et du mocking) :
+### Lancer en local
 
 ```bash
-uv run pytest
+make run       # Streamlit sur http://localhost:8501
+make run_api   # API sur http://localhost:8000
 ```
+
+### Lancer avec Docker
+
+```bash
+make up
+```
+- Streamlit : http://localhost:8501
+- Documentation FastAPI : http://localhost:8000/docs
+
+```bash
+make down
+```
+
+## 🧪 Qualité de code
+
+```bash
+make check       # lint + typecheck + tests
+make format       # formate avec ruff
+make test          # tests avec couverture
+make test-fast    # tests, arrêt à la première erreur
+```
+
+## 📁 Structure du projet
+
+```text
+├── app/                    # Application Streamlit
+├── dockerfiles/            # Dockerfile multi-stage
+├── docs/                   # Figures, références, rapports générés
+├── data/                   # raw / interim / processed / external (voir DVC ci-dessous)
+├── notebooks/              # Notebooks d'exploration
+├── scripts/                # Scripts d'orchestration (ex. train_pipeline.py)
+├── src/titanic_ml/
+│   ├── api/                # Implémentation FastAPI
+│   └── core/
+│       ├── data_io/        # Chargement des données
+│       ├── features/       # Feature engineering / préprocessing
+│       ├── models/         # Entraînement / évaluation
+│       ├── utils/          # Chemins centralisés, version
+│       └── visualization/  # Réservé aux évolutions futures
+├── tests/                  # unit_test / integration / functional
+├── .env.example            # Modèle de variables d'environnement
+├── docker-compose.yml       # Orchestration API + Streamlit
+├── Makefile                 # Raccourcis de développement
+└── pyproject.toml           # Métadonnées et configuration des outils
+```
+
+## 💾 Gestion des données
+
+`data/` contient des sous-dossiers par étape du pipeline :
+- `raw/` : dumps originaux, immuables. Ne jamais modifier.
+- `interim/` : données intermédiaires transformées.
+- `processed/` : datasets finaux prêts pour la modélisation.
+- `external/` : données de sources tierces.
+
+Ces répertoires sont ignorés par Git. Pour des datasets volumineux, utilise
+[DVC](https://dvc.org/) plutôt que de les committer directement.
+
+## 🤝 Contribuer
+
+Voir [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## 📄 Licence
+
+Aucune licence choisie pour l'instant.

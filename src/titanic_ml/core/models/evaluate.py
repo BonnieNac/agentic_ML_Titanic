@@ -1,19 +1,19 @@
 """Évaluation du modèle entraîné."""
 
-from pathlib import Path
-
 import matplotlib.pyplot as plt
+import pandas as pd
 from sklearn.metrics import (
     ConfusionMatrixDisplay,
     accuracy_score,
     classification_report,
     roc_auc_score,
 )
+from sklearn.pipeline import Pipeline
 
-REPORTS_DIR = Path(__file__).resolve().parent.parent / "models"
+from titanic_ml.core.utils.paths import FIGURES_DIR
 
 
-def evaluate_model(model, X_test, y_test) -> None:
+def evaluate_model(model: Pipeline, X_test: pd.DataFrame, y_test: pd.Series) -> None:
     """Affiche les métriques de performance et sauvegarde la matrice de confusion."""
     y_pred = model.predict(X_test)
     y_proba = model.predict_proba(X_test)[:, 1]
@@ -26,11 +26,11 @@ def evaluate_model(model, X_test, y_test) -> None:
     print("Rapport de classification :")
     print(classification_report(y_test, y_pred, target_names=["Décédé", "Survivant"]))
 
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
     fig, ax = plt.subplots(figsize=(5, 5))
     ConfusionMatrixDisplay.from_predictions(
         y_test, y_pred, display_labels=["Décédé", "Survivant"], ax=ax, cmap="Blues"
     )
     fig.tight_layout()
-    fig.savefig(REPORTS_DIR / "confusion_matrix.png")
-    print(f"Matrice de confusion sauvegardée dans {REPORTS_DIR / 'confusion_matrix.png'}")
+    fig.savefig(FIGURES_DIR / "confusion_matrix.png")
+    print(f"Matrice de confusion sauvegardée dans {FIGURES_DIR / 'confusion_matrix.png'}")

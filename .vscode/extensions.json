@@ -1,0 +1,24 @@
+{
+    "recommendations": [
+        "christian-kohler.path-intellisense",
+        "codezombiech.gitignore",
+        "donjayamanne.githistory",
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode",
+        "kevinrose.vsc-python-indent",
+        "knisterpeter.vscode-commitizen",
+        "mechatroner.rainbow-csv",
+        "mhutchie.git-graph",
+        "ms-python.debugpy",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-keymap",
+        "ms-toolsai.jupyter-renderers",
+        "ms-vscode.makefile-tools",
+        "njpwerner.autodocstring",
+        "redhat.vscode-yaml",
+        "the0807.uv-toolkit",
+        "waderyan.gitblame"
+    ]
+}

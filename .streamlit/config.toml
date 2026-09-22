@@ -1,0 +1,14 @@
+[client]
+# Look "Entreprise" (masque les outils de dev)
+toolbarMode = "minimal"
+showErrorDetails = false
+
+[browser]
+gatherUsageStats = false
+
+[server]
+enableXsrfProtection = true
+maxUploadSize = 50
+
+[ui]
+hideTopBar = true

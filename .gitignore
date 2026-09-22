@@ -2,15 +2,37 @@
 .venv/
 __pycache__/
 *.pyc
+*.egg-info/
+build/
+dist/
 
-# Cache pytest / ruff
+# Cache pytest / ruff / mypy
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+
+# Couverture de tests
+.coverage
+coverage.xml
+report.xml
+htmlcov/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Secrets
+.env
 
 # Réglages Claude Code personnels (perso, non partagés)
 .claude/settings.local.json
 
 # Données et artefacts générés
-data/*.csv
-models/*.joblib
-models/*.png
+data/raw/*
+data/interim/*
+data/processed/*
+data/external/*
+!data/*/.gitkeep
+!data/.dvcignore
+/models/
+logs/*.log
+docs/figures/*.png

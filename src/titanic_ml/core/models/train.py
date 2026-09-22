@@ -1,16 +1,15 @@
 """Entraînement du modèle de classification (survie au Titanic)."""
 
-from pathlib import Path
-
 import joblib
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.pipeline import Pipeline
 
-from .preprocess import build_preprocessor
+from titanic_ml.core.features.preprocessing import build_preprocessor
+from titanic_ml.core.utils.paths import MODELS_DIR
 
-MODEL_DIR = Path(__file__).resolve().parent.parent / "models"
-MODEL_PATH = MODEL_DIR / "titanic_model.joblib"
+MODEL_PATH = MODELS_DIR / "titanic_model.joblib"
 
 
 def build_model() -> Pipeline:
@@ -23,7 +22,9 @@ def build_model() -> Pipeline:
     )
 
 
-def train_model(X, y, test_size: float = 0.2, random_state: int = 42):
+def train_model(
+    X: pd.DataFrame, y: pd.Series, test_size: float = 0.2, random_state: int = 42
+) -> tuple[Pipeline, pd.DataFrame, pd.Series]:
     """Entraîne le modèle et retourne (pipeline entraîné, X_test, y_test)."""
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state, stratify=y
@@ -43,6 +44,6 @@ def train_model(X, y, test_size: float = 0.2, random_state: int = 42):
 
 def save_model(model: Pipeline) -> None:
     """Sauvegarde le pipeline entraîné sur le disque."""
-    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
     joblib.dump(model, MODEL_PATH)
     print(f"Modèle sauvegardé dans {MODEL_PATH}")
