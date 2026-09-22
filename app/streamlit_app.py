@@ -7,7 +7,6 @@ import pretty_errors  # noqa: F401
 import streamlit as st
 import viz
 from loguru import logger
-from pygwalker.api.streamlit import StreamlitRenderer
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 from titanic_ml.core.data_io.loader import load_data as load_titanic_dataset
@@ -242,16 +241,26 @@ def main() -> None:
             st.markdown("---")
             st.subheader("🔍 Explorateur de données interactif")
 
-            if "pyg_renderer" not in st.session_state:
-                st.session_state.pyg_renderer = StreamlitRenderer(
-                    st.session_state.pyg_data,
-                    spec="./app/assets/pygwalker_config.json",
-                    env="streamlit",
-                    theme_key="streamlit",
-                    use_kernel_calc=True,
+            try:
+                from pygwalker.api.streamlit import StreamlitRenderer
+            except ImportError as e:
+                st.error(
+                    "⚠️ L'explorateur Pygwalker est indisponible : incompatibilité entre les versions "
+                    f"installées de `pygwalker` et `streamlit` ({e}). "
+                    'Essaie de figer une version compatible de Streamlit (`uv add "streamlit<1.6x"`) '
+                    "ou de mettre à jour `pygwalker`."
                 )
+            else:
+                if "pyg_renderer" not in st.session_state:
+                    st.session_state.pyg_renderer = StreamlitRenderer(
+                        st.session_state.pyg_data,
+                        spec="./app/assets/pygwalker_config.json",
+                        env="streamlit",
+                        theme_key="streamlit",
+                        use_kernel_calc=True,
+                    )
 
-            st.session_state.pyg_renderer.explorer()
+                st.session_state.pyg_renderer.explorer()
         else:
             st.info("💡 Charge un dataset depuis le menu de gauche pour débloquer l'explorateur interactif.")
 
